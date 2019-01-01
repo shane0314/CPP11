@@ -24,7 +24,7 @@ public:
 	char * getExpr() const { return expr; }
 	double calc();//计算表达式结果,返回结果类型double
 	char getOpr(int &i, int &num); //得到一个运算符或数字
-	int calcOnce(char opr, stack<double, vector<double>> &numS);
+	int calcOnce(stack<char> &oprS, stack<double> &numS);
 	int getPrior(char opr); //运算符优先级
 };
 
@@ -48,24 +48,31 @@ char NblExpr::getOpr(int &i, int &num)
 	}
 }
 
-int NblExpr::calcOnce(char opr, stack<double, vector<double>> &numS)
+int NblExpr::calcOnce(stack<char> &oprS, stack<double> &numS)
 {
 	double num2 = numS.top();//!!pop只弹出，不返回
 	numS.pop();
 	double num1 = numS.top();
 	numS.pop();
+	char opr = oprS.top();
+	oprS.pop();
 	double res;
+	
 	if (opr == '+')
 		res = num1 + num2;
 	else if (opr == '-')
 		res = num1 - num2;
-	else if (opr == '*')
+	else if (opr == '*' || opr == 'X')
 		res = num1 * num2;
 	else if (opr == '/' && num2 != 0)
 		res = num1 / num2;
-	else {
-		cout << "运算符错误" << endl;
+	else if (num2 ==0){
+		cout << "除数不能为零：" << num2 << endl;
 		return -1;
+	}
+	else{
+	    cout << "运算符错误：" << opr << endl;
+	    return -1;
 	}
 	numS.push(res);
 	return 0;
@@ -84,7 +91,7 @@ int NblExpr::getPrior(char opr) //NblExpr::
 	else
 	{
 		cout << "无效运算符" << endl;
-		return 0;
+		return -1;
 	}
 }
 
@@ -93,8 +100,8 @@ double NblExpr::calc()
 	int num = 0;
 	double result = 0;
 	char opr, lastOpr;
-	stack<double, vector<double>> numStack;
-	stack<char, vector<char>> oprStack;
+	stack<double> numStack;
+	stack<char> oprStack;
 
 	int len = strlen(expr);
 	int i = 0;
@@ -115,31 +122,28 @@ double NblExpr::calc()
 		{
 			while (!oprStack.empty() && oprStack.top() != '(')
 			{
-				lastOpr = oprStack.top();
-				oprStack.pop();
-				calcOnce(lastOpr, numStack);
+				//lastOpr = oprStack.top();
+				//oprStack.pop();
+				calcOnce(oprStack, numStack);
 			}
-			oprStack.pop(); //弹出'('
+			if (!oprStack.empty())
+			    oprStack.pop(); //弹出'('
 		}
 		else
 		{
 			while (!oprStack.empty() && oprStack.top() != '('
 				&& getPrior(oprStack.top()) >= getPrior(opr))
 			{
-				lastOpr = oprStack.top();
-				oprStack.pop();
-				calcOnce(lastOpr, numStack);
+				calcOnce(oprStack, numStack);
 			}
 			oprStack.push(opr); //压入当前 运算符
 		}
 	}//while (i<=len)
 	while (!oprStack.empty())
 	{
-		lastOpr = oprStack.top();
-		oprStack.pop();
-		calcOnce(lastOpr, numStack);
+		calcOnce(oprStack, numStack);
 	}
-	if (numStack.empty())
+	if (!oprStack.empty() || numStack.empty() || numStack.size()>1)
 	{
 		cout << "计算错误" << endl;
 		return 0;
