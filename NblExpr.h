@@ -30,10 +30,49 @@ public:
 
 char NblExpr::getOpr(int &i, int &num)
 {
-	if (expr[i] > '9' || expr[i] < '0')
+	if ((expr[i] > '9' || expr[i] < '0') && expr[i] != '-')
 	{
-		i++; //!!
-		return expr[i-1]; //运算符
+		//i++; //!!
+		return expr[i++]; //运算符
+	}
+	else if (expr[i] == '-')
+	{
+	    //负号前面不能是数字
+	    for(int j=i-1; j>=0; j--)
+	    {
+	        if (expr[j] == ' ')
+	            continue;
+	        else if (expr[j] <= '9' && expr[j] >= '0')
+            {   
+                //i++;	            
+                return expr[i++]; 
+            }
+	        else
+	            break;
+	    }
+	    //负号后面必须是数字
+	    for(int j=i+1; j<=strlen(expr); j++)
+	    {
+	        if (expr[j] == ' ')
+	            continue;
+	        else if (expr[j] > '9' || expr[j] < '0')
+            {   
+                //i++;
+                return expr[i++];
+            }
+            else
+                break;
+	    }
+	    //负数
+	    int m_num = 0;
+	    for(i++; expr[i] == ' '; i++);
+	    while (expr[i] <= '9' && expr[i] >= '0' && i <= strlen(expr))
+		{
+			m_num = m_num * 10 + expr[i] - '0';
+			i++;
+		}
+		num = -m_num;
+		return 'N';
 	}
 	else
 	{
