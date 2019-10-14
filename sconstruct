@@ -1,0 +1,43 @@
+import sys
+import os
+import re
+
+env = Environment()
+env.Append(CXXFLAGS = ' -std=c++11')
+#env.Append(CXXFLAGS = ' -lboost_program_options')
+#env.Append(CXXFLAGS = ' -lcppunit')
+env.Append(LIBS = ['cppunit', 'boost_program_options'])
+print "CXXFLAGS:", env['CXXFLAGS']
+
+# def getFileList( rootDir ):
+rootDir = "."
+fileList = [ f for f in os.listdir(rootDir) if os.path.isfile(os.path.join(rootDir, f)) \
+and f.startswith('test') \
+and (f.endswith('.cpp') or f.endswith('.cc') or f.endswith('.c')) ]
+fileList.sort()
+#print "file list : ", fileList
+
+indexCompiledList = []
+for file in fileList:
+    #print file
+    pattern = re.compile(r'test(\d+)')
+    index = pattern.findall(file)
+    #print "index : ", index
+    if not index:
+        print file, " no pattern found!"
+        continue
+    if index[0] in indexCompiledList:
+        print file, " have been compiled, skip!"
+        continue
+    else:
+        indexCompiledList.append(index[0])
+        targetName = "t"+index[0]
+        sourceFiles = []
+        for tmpFile in fileList:
+            tmpIndex = pattern.findall(tmpFile)
+            if tmpIndex and tmpIndex[0] == index[0]:
+                sourceFiles.append(tmpFile)
+        print "targetName=", targetName, " sourceFile:", sourceFiles
+        env.Program(target = targetName, source = sourceFiles) 
+
+print indexCompiledList
