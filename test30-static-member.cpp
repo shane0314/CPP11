@@ -6,6 +6,7 @@ void A::testB() {
 		std::cout << b[0].getStatic() << std::endl;
 		b[1].addStatic();
 		std::cout << b[1].getStatic() << std::endl;
+        std::cout << B::i << std::endl;
 	}
 	
 int A::B::getStatic() { return seq; }

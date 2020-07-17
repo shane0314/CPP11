@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <memory>
+#include <utility>
+
 using namespace std;
 
 class MyString
@@ -92,9 +95,11 @@ int main()
 }
 */
 void process(int& i){
+    i++;
     cout << "process(int&):" << i << endl;
 }
 void process(int&& i){
+    i++;
     cout << "process(int&&):" << i << endl;
 }
 /*
@@ -108,14 +113,61 @@ void myforward(int&& i){
     process(std::forward<int>(i));
 }
 
+// test std::forward
+//[[
+/*
+template<typename T>
+void PrintT(T& t)
+{
+    std::cout << "lvalue"  << std::endl;
+}
+*/
+template<typename T>
+void PrintT(T&& t)
+{
+    std::cout << "rvalue" << std::endl;
+}
+
+template<typename T>
+void TestForward(T&& v)
+{
+    PrintT(v);
+    PrintT(std::forward<T> (v));
+    PrintT(std::move(v));
+}
+
+void Test()
+{
+    TestForward(1);
+    int x = 1;
+    TestForward(x);
+    TestForward(std::forward<int>(x));
+}
+//]]
+
 int main()
 {
     int a = 0;
     process(a); //a被视为左值 process(int&):0
+    cout << ">>> a = " << a << endl; //>>> a = 1
     process(1); //1被视为右值 process(int&&):1
     process(move(a)); //强制将a由左值改为右值 process(int&&):0
+    cout << ">>> a = " << a << endl; //>>> a = 2
     myforward(2);  //右值经过forward函数转交给process函数，却称为了一个左值，
     //原因是该右值有了名字  所以是 process(int&):2
     myforward(move(a));  // 同上，在转发的时候右值变成了左值  process(int&):0
+    cout << ">>> a = " << a << endl; //>>> a = 3
+    a = 0;
+    cout << ">>> a = " << a << endl; //>>> a = 0
     //myforward(a) // 错误用法，右值引用不接受左值
+    
+    int&& lv1 = 11;
+    int&& rv1 = std::move(lv1);
+    cout << "lv1:" << lv1 << " rv1:" << rv1 << std::endl;
+    rv1 = 22;
+    cout << "lv1:" << lv1 << " rv1:" << rv1 << std::endl;
+    lv1 = 33;
+    cout << "lv1:" << lv1 << " rv1:" << rv1 << std::endl;
+
+    Test();
 }

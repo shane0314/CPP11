@@ -14,6 +14,7 @@ private:
 		void addStatic();
 		static int seq;
 		int num;
+        const static int i = 99;
 	};		
 	
 	B bb[10];

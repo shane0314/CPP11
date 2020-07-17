@@ -17,9 +17,12 @@ int main(int argc, char** argv )
     string configFilename;
 	std::vector<int> 	values;
 	bool flag;
-	int pos1, pos2;
+	int pos1;
+	std::vector<int> pos2;
     namespace po = boost::program_options;
-    po::options_description desc( "test program options");
+    po::options_description desc( "test program options" "\n"
+			"usage: ./t9 -c hello -v 1 2 4 6 7 8 9 \n"
+			"options");
     
     desc.add_options()
         ("help", "produce help messages/haha")
@@ -27,17 +30,23 @@ int main(int argc, char** argv )
         ("value,v", po::value( &values), "int values, -v 1 -v 2 -v 3")
 		("flag,f", po::bool_switch( &flag ), "swith option")
 		("pos1,p", po::value( &pos1 ), "positional option 1")
-		("pos2,q", po::value( &pos2 ), "positional option 2")
         ;
 	
+	// this option will be hidden at "help" show	
+    po::options_description hiddenDesc( "hidden options");
+	hiddenDesc.add_options()
+		("pos2,q", po::value( &pos2 ), "positional option 2")
+		;
+	
+	// the second arg of add, species that up to 'max_count' next positional options should be given the 'name'. The value of '-1' means 'unlimited'.
 	po::positional_options_description pos;
-	pos.add( "pos1", 1 ).add( "pos2", 2 );
+	pos.add( "pos1", 1 ).add( "pos2", -1 );
 		
 
     po::variables_map vm;
     try{
         po::store( po::command_line_parser( argc, argv ).options(
-			po::options_description().add( desc ) ).positional( pos ).run(), vm );
+			po::options_description().add( desc ).add( hiddenDesc ) ).positional( pos ).run(), vm );
     }
     catch(...){
         std::cout << "unknown options!" << std::endl;
@@ -65,11 +74,19 @@ int main(int argc, char** argv )
 		std::cout << std::endl;
 	}    
 	
-	std::cout << "positional options: " << pos1 << ", " << pos2 << std::endl;
+	std::cout << "positional options, pos1: " << pos1 << std::endl;
+	
+	if( !pos2.empty() ) {
+		std::cout << "positional options, pos2: ";
+		BOOST_FOREACH( int var, pos2 ) {
+			std::cout << var << ",";
+		}
+		std::cout << std::endl;
+	}    
     
-/*
+	std::cout << "orig args:" << std::endl;
     for( int idx=0; idx<argc; idx++)
         cout << "agrv[" << idx << "] = " << argv[idx] <<endl;
-*/  
+  
     return 0;
 }

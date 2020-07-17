@@ -7,7 +7,7 @@ int main(int argc, char **argv)
     options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-        ("compression", value<int>(), "set compression level")
+        ("compression", value<int>(), (std::string("set compression level")+"test..." ).c_str() )
     ;
 
     variables_map vm;

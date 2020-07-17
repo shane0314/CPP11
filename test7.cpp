@@ -17,4 +17,11 @@ int main()
 	a2[0] = 'H';
 	a2[1] = 'E';
 	cout << "a2=" <<a2 <<endl;
+
+	#ifdef FIRST
+	cout << "-DFIRST" << endl;
+	#endif
+	#ifdef MY_VALUE
+	cout << "-DMY_VALUE" << endl;
+	#endif
 }

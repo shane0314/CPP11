@@ -3,10 +3,10 @@ import os
 import re
 
 env = Environment()
-env.Append(CXXFLAGS = ' -std=c++11')
+env.Append(CXXFLAGS = ' -std=c++11 -pthread')
 #env.Append(CXXFLAGS = ' -lboost_program_options')
 #env.Append(CXXFLAGS = ' -lcppunit')
-env.Append(LIBS = ['cppunit', 'boost_program_options'])
+env.Append(LIBS = ['cppunit', 'boost_program_options', 'boost_thread'])
 print "CXXFLAGS:", env['CXXFLAGS']
 
 # def getFileList( rootDir ):
